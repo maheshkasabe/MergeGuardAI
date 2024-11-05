@@ -1,23 +1,22 @@
-// pages/api/webhook.ts
+// src/app/api/webhook/route.ts
+import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
-import OpenAI from 'openai';
 import axios from 'axios';
-import { NextApiRequest, NextApiResponse } from 'next';
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const [owner, repo] = (process.env.REPO_NAME as string).split("/");
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { action, pull_request } = req.body;
+export async function POST(req: Request) {
+  const { action, pull_request } = await req.json();
 
-  if (req.method === 'POST' && pull_request && (action === 'opened' || action === 'synchronize')) {
+  if (pull_request && (action === 'opened' || action === 'synchronize')) {
     const prNumber = pull_request.number;
     console.log(`Checking PR #${prNumber}: ${pull_request.title}`);
     await reviewAndCorrectPR(prNumber);
-    return res.status(200).send('Webhook received and processed');
+    return NextResponse.json({ message: 'Webhook received and processed' });
   }
 
-  res.status(400).send('Invalid request');
+  return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
 }
 
 async function getPRFiles(prNumber: number) {
@@ -30,29 +29,29 @@ async function getPRFiles(prNumber: number) {
 }
 
 async function correctCode(code: string) {
-    const userPrompt = `Correct any security issues, code quality issues, or potential secrets in the following code:\n\n${code}\n\nOnly return the corrected code without any explanations.`;
-  
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        "model": "google/palm-2-codechat-bison",
-        "messages": [
-          { "role": "user", "content": userPrompt },
-        ],
-        top_p: 1,
-        temperature: 0.01,
-        repetition_penalty: 1,
-      }),
-    });
-  
-    const data = await response.json();
-    const correctedCode = data.choices[0].message.content;
-    return correctedCode;
-  }
+  const userPrompt = `Correct any security issues, code quality issues, or potential secrets in the following code:\n\n${code}\n\nOnly return the corrected code without any explanations.`;
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "model": "google/palm-2-codechat-bison",
+      "messages": [
+        { "role": "user", "content": userPrompt },
+      ],
+      top_p: 1,
+      temperature: 0.01,
+      repetition_penalty: 1,
+    }),
+  });
+
+  const data = await response.json();
+  const correctedCode = data.choices[0].message.content;
+  return correctedCode;
+}
 
 async function commitCorrections(file: { filename: string; sha: string }, correctedCode: string) {
   const { filename, sha } = file;
