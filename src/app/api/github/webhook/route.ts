@@ -24,7 +24,6 @@ async function getPrFiles(prNumber: number){
         repo,
         pull_number: prNumber,
     })
-    console.log(files);
     return files;
 }
 
@@ -35,8 +34,32 @@ async function getFileContent(prNumber: number){
     for (const file of files){
         const {raw_url}= file;
         const {data: fileContent} = await axios.get(raw_url);
-        console.log(fileContent);
-        return fileContent
+        const correctedCode = await codeReview(fileContent);
+        console.log(correctedCode);
     }
 
+}
+
+async function codeReview(fileContent: string){
+    const userPrompt = "Correct any security issues, code quality issues, or potential secrets in the following code:\n\n"+fileContent+"\n\nOnly return the corrected code without any explanation, comments and code formatting..";
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "model": "google/palm-2-codechat-bison",
+            "messages": [
+              { "role": "user", "content": userPrompt },
+            ],
+            top_p: 1,
+            temperature: 0.01,
+            repetition_penalty: 1,
+          })
+    })
+
+    const data = await response.json();
+    const correctedCode = data.choices[0].message.content;
+    return correctedCode;
 }
