@@ -28,6 +28,7 @@ async function getPrFiles(prNumber: number){
     return files;
 }
 
+ // small change
 async function getFileContent(prNumber: number){
     const files = await getPrFiles(prNumber);
 
