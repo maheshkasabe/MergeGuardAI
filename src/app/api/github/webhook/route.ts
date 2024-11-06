@@ -1,3 +1,4 @@
+ ```python
 import { Octokit } from '@octokit/rest';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
@@ -27,7 +28,6 @@ async function getPrFiles(prNumber: number){
     return files;
 }
 
- // small change
 async function getFileContent(prNumber: number){
     const files = await getPrFiles(prNumber);
 
@@ -63,3 +63,4 @@ async function codeReview(fileContent: string){
     const correctedCode = data.choices[0].message.content;
     return correctedCode;
 }
+```
