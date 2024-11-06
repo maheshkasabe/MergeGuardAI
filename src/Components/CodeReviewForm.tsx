@@ -1,6 +1,8 @@
 "use client";
 import { useState } from 'react';
 
+const apikey= "ahsdhkj1k2kh2hkhdkwshdkjhwkq12kj2h3k"
+
 const CodeReviewForm = () => {
   const [userPrompt, setUserPrompt] = useState('');
   const [Res, setRes] = useState('');
