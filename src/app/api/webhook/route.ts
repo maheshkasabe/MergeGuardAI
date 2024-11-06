@@ -1,3 +1,4 @@
+ ```python
 import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import axios from 'axios';
@@ -90,8 +91,6 @@ async function commitCorrections(file: { filename: string; sha: string }, correc
   });
 }
 
-// small change
-
 async function reviewAndCorrectPR(prNumber: number) {
   const files = await getPRFiles(prNumber);
 
@@ -108,3 +107,4 @@ async function reviewAndCorrectPR(prNumber: number) {
     }
   }
 }
+```
