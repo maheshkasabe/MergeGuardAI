@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 const CodeReviewForm = () => {
   const [userPrompt, setUserPrompt] = useState('');
-  const [Res, setRes] = useState('');
+  const [Res setRes] = useState()
 
   const handleClick = async () => {
     try {
