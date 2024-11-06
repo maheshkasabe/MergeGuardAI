@@ -1,4 +1,3 @@
-// src/app/api/webhook/route.ts
 import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import axios from 'axios';
@@ -29,7 +28,7 @@ async function getPRFiles(prNumber: number) {
 }
 
 async function correctCode(code: string) {
-  const userPrompt = `Correct any security issues, code quality issues, or potential secrets in the following code:\n\n${code}\n\nOnly return the corrected code without any explanations.`;
+  const userPrompt = `Correct any security issues, code quality issues, or potential secrets in the following code:\n\n${code}\n\nOnly return the corrected code without any explanation, comments and code formatting..`;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
