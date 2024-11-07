@@ -1,4 +1,3 @@
- ```jsx
 import { useState } from 'react';
 
 const CodeReviewForm = () => {
@@ -42,4 +41,3 @@ const CodeReviewForm = () => {
 };
 
 export default CodeReviewForm;
-```
